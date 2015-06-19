@@ -1,6 +1,79 @@
 fileFormatVersion: 2
 guid: ceae7155932cd664a9060259e3588c33
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: dbzsprites_0
+    21300002: dbzsprites_1
+    21300004: dbzsprites_2
+    21300006: dbzsprites_3
+    21300008: dbzsprites_4
+    21300010: dbzsprites_5
+    21300012: dbzsprites_6
+    21300014: dbzsprites_7
+    21300016: dbzsprites_8
+    21300018: dbzsprites_9
+    21300020: dbzsprites_10
+    21300022: dbzsprites_11
+    21300024: dbzsprites_12
+    21300026: dbzsprites_13
+    21300028: dbzsprites_14
+    21300030: dbzsprites_15
+    21300032: dbzsprites_16
+    21300034: dbzsprites_17
+    21300036: dbzsprites_18
+    21300038: dbzsprites_19
+    21300040: dbzsprites_20
+    21300042: dbzsprites_21
+    21300044: dbzsprites_22
+    21300046: dbzsprites_23
+    21300048: dbzsprites_24
+    21300050: dbzsprites_25
+    21300052: dbzsprites_26
+    21300054: dbzsprites_27
+    21300056: dbzsprites_28
+    21300058: dbzsprites_29
+    21300060: dbzsprites_30
+    21300062: dbzsprites_31
+    21300064: dbzsprites_32
+    21300066: dbzsprites_33
+    21300068: dbzsprites_34
+    21300070: dbzsprites_35
+    21300072: dbzsprites_36
+    21300074: dbzsprites_37
+    21300076: dbzsprites_38
+    21300078: dbzsprites_39
+    21300080: dbzsprites_40
+    21300082: dbzsprites_41
+    21300084: dbzsprites_42
+    21300086: dbzsprites_43
+    21300088: dbzsprites_44
+    21300090: dbzsprites_45
+    21300092: dbzsprites_46
+    21300094: dbzsprites_47
+    21300096: dbzsprites_48
+    21300098: dbzsprites_49
+    21300100: dbzsprites_50
+    21300102: dbzsprites_51
+    21300104: dbzsprites_52
+    21300106: dbzsprites_53
+    21300108: dbzsprites_54
+    21300110: dbzsprites_55
+    21300112: dbzsprites_56
+    21300114: dbzsprites_57
+    21300116: dbzsprites_58
+    21300118: dbzsprites_59
+    21300120: dbzsprites_60
+    21300122: dbzsprites_61
+    21300124: dbzsprites_62
+    21300126: dbzsprites_63
+    21300128: dbzsprites_64
+    21300130: dbzsprites_65
+    21300132: dbzsprites_66
+    21300134: dbzsprites_67
+    21300136: dbzsprites_68
+    21300138: dbzsprites_69
+    21300140: dbzsprites_70
+    21300142: dbzsprites_71
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -19,6 +92,9 @@ TextureImporter:
   isReadable: 0
   grayScaleToAlpha: 0
   generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
   seamlessCubemap: 0
   textureFormat: -1
   maxTextureSize: 1024
@@ -29,6 +105,7 @@ TextureImporter:
     wrapMode: 1
   nPOTScale: 0
   lightmap: 0
+  rGBM: 0
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
@@ -764,3 +841,5 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
+  assetBundleName: 
+  assetBundleVariant: 
