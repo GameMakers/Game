@@ -8,9 +8,8 @@ public class LevelGenerator : MonoBehaviour {
 	public Transform player;
 	public Transform prefab;
 	public Vector3 start_pos;
-	private Vector3 next_pos;
 
-	private readonly int TOTAL_PLATFORMS = 1000;
+	private readonly int TOTAL_PLATFORMS = 2000;
 	private readonly int X_RECYLE_CUTOFF = 20, Y_RECYCLE_CUTOFF = 10;
 	private readonly int TOTAL_INSTANCIATED_PLATFORMS = 100;
 	private readonly float VERTICAL_BUFFER = 1;
@@ -43,7 +42,7 @@ public class LevelGenerator : MonoBehaviour {
 	//a directed graph with platforms as nodes and edges to represent reachable platforms
 	private Graph platform_graph;
 	
-	private Queue<Transform> inactive_platforms;
+	private Queue<int> inactive_platform_indices;
 	private List<Transform> active_platforms;
 	
 	
@@ -58,7 +57,7 @@ public class LevelGenerator : MonoBehaviour {
 	
 	void Start(){
 		active_platforms = new List<Transform>();
-		inactive_platforms = new Queue<Transform>();
+		inactive_platform_indices = new Queue<int>();
 		all_platforms = new List<Platform>();
 		//TEST THE COMPARATOR
 		right_extremities = new SortedList<float,int>(new Duplicate_key_comparer<float>());
@@ -68,9 +67,10 @@ public class LevelGenerator : MonoBehaviour {
 		platform_graph = new Graph();
 
 		//instantiate up to the number of allowed platforms
-		for (int a=0; a<TOTAL_INSTANCIATED_PLATFORMS; a++) {
+		for (int a = 0; a < TOTAL_INSTANCIATED_PLATFORMS; ++a) {
 			Transform platform = (Transform)Instantiate(prefab);
-			inactive_platforms.Enqueue(platform);
+            active_platforms.Add(platform);
+            inactive_platform_indices.Enqueue(a);
 		}
 
 		//place the start platform
@@ -176,7 +176,7 @@ public class LevelGenerator : MonoBehaviour {
 		//find the smallest active right extremity
 		float prev_extremity = float.MinValue;
 		int stage = 1;
-		for (int a = 0; a < all_platforms.Count; ++a){
+        for (int a = 0; a < TOTAL_PLATFORMS; ++a){
 			//when the first right extremity within the active x range is found
 			if (stage == 1 && right_extremities.ElementAt(a).Key > right_extremity_cutoff){
 				stage = 2;
@@ -184,11 +184,9 @@ public class LevelGenerator : MonoBehaviour {
 				//mark the position of the next right extremity that would appear when pushing the borders left
 				next_left_pos = prev_extremity;			
 				//mark the extremity index
-				//right_extremity_index = right_extremities.ElementAt(a).Value;
 				right_extremity_index = a;
 				
-				//SHOULD THIS SAY DISAPPEAR?
-				//mark the position of the next right extremity that would appear when pulling the borders to the right
+				//mark the position of the next right extremity that would disappear when pulling the borders to the right
 				next_left_pos_rep = right_extremities.ElementAt(a).Key;
 			}
 			//continue checking platforms until the first which is also within the active y range is found
@@ -200,7 +198,7 @@ public class LevelGenerator : MonoBehaviour {
 				if (((temp_pos + (temp_scale/2)) > upper_extremity_cutoff) && ((temp_pos - (temp_scale/2)) < lower_extremity_cutoff)){
 					//mark the extremity position and index
 					min_x_pos = right_extremities.ElementAt(a).Key;
-					min_x_index = right_extremities.ElementAt(a).Value;			
+					min_x_index = a;			
 					break;
 				}
 			}
@@ -211,7 +209,7 @@ public class LevelGenerator : MonoBehaviour {
 		//find the largest active left extremity
 		prev_extremity = float.MaxValue;
 		stage = 1;
-		for (int a = all_platforms.Count-1; a >= 0; --a){
+        for (int a = TOTAL_PLATFORMS - 1; a >= 0; --a){
 			if (stage == 1 && left_extremities.ElementAt(a).Key < left_extremity_cutoff){
 				stage = 2;
 				next_right_pos = prev_extremity;
@@ -225,7 +223,7 @@ public class LevelGenerator : MonoBehaviour {
 				
 				if (((temp_pos + (temp_scale/2)) > upper_extremity_cutoff) && ((temp_pos - (temp_scale/2)) < lower_extremity_cutoff)){
 					max_x_pos = left_extremities.ElementAt(a).Key;
-					max_x_index = left_extremities.ElementAt(a).Value;
+					max_x_index = a;
 					break;
 				}
 			}
@@ -236,7 +234,7 @@ public class LevelGenerator : MonoBehaviour {
 		//find the smallest active upper extremity
 		prev_extremity = float.MinValue;
 		stage = 1;
-		for (int a = 0; a < all_platforms.Count; ++a){
+        for (int a = 0; a < TOTAL_PLATFORMS; ++a){
 			if (stage == 1 && upper_extremities.ElementAt(a).Key > upper_extremity_cutoff){
 				stage = 2;
 				next_lower_pos = prev_extremity;
@@ -250,7 +248,7 @@ public class LevelGenerator : MonoBehaviour {
 				
 				if (((temp_pos + (temp_scale/2)) > right_extremity_cutoff) && ((temp_pos - (temp_scale/2)) < left_extremity_cutoff)){
 					min_y_pos = upper_extremities.ElementAt(a).Key;
-					min_y_index = upper_extremities.ElementAt(a).Value;
+					min_y_index = a;
 					break;
 				}
 			}
@@ -261,7 +259,7 @@ public class LevelGenerator : MonoBehaviour {
 		//find the largest active lower extremity
 		prev_extremity = float.MaxValue;
 		stage = 1;
-		for (int a = all_platforms.Count-1; a >= 0; --a){
+        for (int a = TOTAL_PLATFORMS - 1; a >= 0; --a){
 		//if (stage==1)
 				//print (lower_extremities.ElementAt(0).Key);
 			if (stage == 1 && lower_extremities.ElementAt(a).Key < lower_extremity_cutoff){
@@ -277,7 +275,7 @@ public class LevelGenerator : MonoBehaviour {
 				
 				if (((temp_pos + (temp_scale/2)) > right_extremity_cutoff) && ((temp_pos - (temp_scale/2)) < left_extremity_cutoff)){
 					max_y_pos = lower_extremities.ElementAt(a).Key;
-					max_y_index = lower_extremities.ElementAt(a).Value;
+					max_y_index = a;
 					break;
 				}
 			}
@@ -311,7 +309,7 @@ public class LevelGenerator : MonoBehaviour {
 	private bool activate_if_in_x_range(int index){
 		float temp_pos = all_platforms[index].get_position().x;
 		float temp_scale = all_platforms[index].getScale().x;
-		//if the platform is within the allowable y range then activate it
+		//if the platform is within the allowable x range then activate it
 		if (((temp_pos + (temp_scale/2)) > right_extremity_cutoff) && ((temp_pos - (temp_scale/2)) < left_extremity_cutoff)){
 			activate(index);
 			return true;
@@ -319,13 +317,31 @@ public class LevelGenerator : MonoBehaviour {
 		
 		return false;
 	}
+
+    private bool is_in_y_range(int index) {
+        float temp_pos = all_platforms[index].get_position().y;
+        float temp_scale = all_platforms[index].getScale().y;
+        if (((temp_pos + (temp_scale / 2)) > upper_extremity_cutoff) && ((temp_pos - (temp_scale / 2)) < lower_extremity_cutoff))
+            return true;
+
+        return false;
+    }
+
+    private bool is_in_x_range(int index) {
+        float temp_pos = all_platforms[index].get_position().y;
+        float temp_scale = all_platforms[index].getScale().y;
+        if (((temp_pos + (temp_scale / 2)) > right_extremity_cutoff) && ((temp_pos - (temp_scale / 2)) < left_extremity_cutoff))
+            return true;
+
+        return false;
+    }
 	
-	//take an inactive platform and activate it with the characteristics of the platform at the specified index
+	//take an inactive platform and give it the characteristics of the platform at the specified index
 	private void activate(int index){
-		prefab = inactive_platforms.Dequeue();
-		prefab.localPosition = all_platforms[index].get_position();
-		prefab.localScale = all_platforms[index].getScale();
-		active_platforms.Add(prefab);
+        int active_index = inactive_platform_indices.Dequeue();
+        all_platforms[index].set_index(active_index);
+		active_platforms[active_index].localPosition = all_platforms[index].get_position();
+        active_platforms[active_index].localScale = all_platforms[index].getScale();
 	}
 
 
@@ -334,8 +350,6 @@ public class LevelGenerator : MonoBehaviour {
 		left_extremity_cutoff = player.localPosition.x + X_RECYLE_CUTOFF;
 		upper_extremity_cutoff = player.localPosition.y - Y_RECYCLE_CUTOFF;
 		lower_extremity_cutoff = player.localPosition.y + Y_RECYCLE_CUTOFF;
-		float temp_position;
-		int index;
 
 		//if the next platform off the left border is reached via border push
 		if (next_left_pos >= right_extremity_cutoff){
@@ -344,7 +358,7 @@ public class LevelGenerator : MonoBehaviour {
 			//activate the platform if it is within the valid y-range and update the minimum active x position if it is activated
 			if (activate_if_in_y_range(right_extremities.ElementAt(right_extremity_index).Value)){
 				min_x_pos = right_extremities.ElementAt(right_extremity_index).Key;
-				min_x_index = right_extremities.ElementAt(right_extremity_index).Value;
+				min_x_index = right_extremity_index;
 			}
 			
 			//update the next platform positions
@@ -361,11 +375,11 @@ public class LevelGenerator : MonoBehaviour {
 			
 			if (activate_if_in_y_range(left_extremities.ElementAt(left_extremity_index).Value)){
 				max_x_pos = left_extremities.ElementAt(left_extremity_index).Key;
-				max_x_index = left_extremities.ElementAt(left_extremity_index).Value;
+				max_x_index = left_extremity_index;
 			}
 			
 			next_right_pos_rep = next_right_pos;
-			if (left_extremity_index == (left_extremities.Count-1))
+			if (left_extremity_index == (TOTAL_PLATFORMS-1))
 				next_right_pos = float.MaxValue;
 			else
 				next_right_pos = left_extremities.ElementAt(left_extremity_index+1).Key;
@@ -376,11 +390,11 @@ public class LevelGenerator : MonoBehaviour {
 			lower_extremity_index++;
 			if (activate_if_in_x_range(lower_extremities.ElementAt(lower_extremity_index).Value)){
 				max_y_pos = lower_extremities.ElementAt(lower_extremity_index).Key;
-				max_y_index = lower_extremities.ElementAt(lower_extremity_index).Value;
+				max_y_index = lower_extremity_index;
 			}
 			
 			next_upper_pos_rep = next_upper_pos;
-			if (lower_extremity_index == (lower_extremities.Count-1))
+			if (lower_extremity_index == (TOTAL_PLATFORMS-1))
 				next_upper_pos = float.MaxValue;
 			else
 				next_upper_pos = lower_extremities.ElementAt(lower_extremity_index+1).Key;
@@ -392,7 +406,7 @@ public class LevelGenerator : MonoBehaviour {
 			
 			if (activate_if_in_x_range(upper_extremities.ElementAt(upper_extremity_index).Value)){
 				min_y_pos = upper_extremities.ElementAt(upper_extremity_index).Key;
-				min_y_index = upper_extremities.ElementAt(upper_extremity_index).Value;
+				min_y_index = upper_extremity_index;
 			}
 			
 			next_lower_pos_rep = next_lower_pos;
@@ -407,7 +421,7 @@ public class LevelGenerator : MonoBehaviour {
 		if (next_left_pos_rep <= right_extremity_cutoff){
 			next_left_pos = next_left_pos_rep;
 			right_extremity_index++;
-			if (right_extremity_index == (all_platforms.Count-1))
+			if (right_extremity_index == (TOTAL_PLATFORMS-1))
 				next_left_pos_rep = float.MaxValue;
 			else
 				next_left_pos_rep = right_extremities.ElementAt(right_extremity_index).Key;
@@ -437,153 +451,156 @@ public class LevelGenerator : MonoBehaviour {
 		if (next_lower_pos_rep <= upper_extremity_cutoff){
 			next_lower_pos = next_lower_pos_rep;
 			upper_extremity_index++;
-			if (upper_extremity_index == (all_platforms.Count-1))
+			if (upper_extremity_index == (TOTAL_PLATFORMS-1))
 				next_lower_pos_rep = float.MaxValue;
 			else
 				next_lower_pos_rep = upper_extremities.ElementAt(upper_extremity_index).Key;
 		}
 
-
-		//index set to max value in order to throw an exception if the indicated platform cannot be found
-		index = int.MaxValue;
-
 		//check if a platform should be deactivated off the left border
 		if (min_x_pos < right_extremity_cutoff){
-			float new_pos = float.MaxValue;
-			float new_y_min = float.MaxValue, newYMax = float.MinValue;
-			
-			//loop through all active platforms
-			for (int a=0; a<active_platforms.Count; a++){
-				//store the position of the right extremity current platform
-				temp_position = (active_platforms[a].localPosition.x + (active_platforms[a].localScale.x / 2));
-				//if the platform to deactivate has been found then store its index
-				if (temp_position == min_x_pos)
-					index = a;
-				//update the new plaform farthest to the left border
-				else if (temp_position < new_pos)
-					new_pos = temp_position;
-					
-				//store the position of the upper extremity current platform
-				temp_position = (active_platforms[a].localPosition.y + (active_platforms[a].localScale.y / 2));
-				if (temp_position > min_y_pos && temp_position < new_y_min)
-					new_y_min = temp_position;
-				//store the position of the lower extremity current platform
-				temp_position -= active_platforms[a].localScale.y;
-				if (temp_position < max_y_pos && temp_position > newYMax)
-					newYMax = temp_position;
-			}
-			
-			//update the global min active
-			min_x_pos = new_pos;
-			
-			//check if the platform to deactive was also the farthest platform for the other borders
-			if ((active_platforms[index].localPosition.y + (active_platforms[index].localScale.y / 2)) == min_y_pos)
-				min_y_pos = new_y_min;
-			if ((active_platforms[index].localPosition.y - (active_platforms[index].localScale.y / 2)) == max_y_pos)
-				max_y_pos = newYMax;
+            int index = right_extremities.ElementAt(min_x_index).Value;
 
-			//move the platform to be deactivated
-			inactive_platforms.Enqueue(active_platforms[index]);
-			active_platforms.RemoveAt(index);
+            //deactivate the platform
+            inactive_platform_indices.Enqueue(all_platforms[index].get_index());
 
-			index = int.MaxValue;
+            //find the next active platform farthest to the left
+            for (int a = min_x_index + 1; a < TOTAL_PLATFORMS; ++a){
+                if (is_in_y_range(right_extremities.ElementAt(a).Value)) {
+                    min_x_pos = right_extremities.ElementAt(a).Key;
+                    min_x_index = a;
+                    break;
+                }
+            }
+
+            //if the deactivated platform was also the lowest active platform
+            if (index == upper_extremities.ElementAt(min_y_index).Value){
+                //find the next lowest active platform to update the references
+                for (int a = min_y_index+1; a < TOTAL_PLATFORMS; ++a) {
+                    if (is_in_x_range(upper_extremities.ElementAt(a).Value)) {
+                        min_y_pos = upper_extremities.ElementAt(a).Key;
+                        min_y_index = a;
+                        break;
+                    }
+                }
+            }
+
+            //if the deactivated platform was also the highest active platform
+            if (index == lower_extremities.ElementAt(max_y_index).Value){
+                //find the next highest active platform to update the references
+                for (int a = max_y_index-1; a >= 0; --a) {
+                    if (is_in_x_range(lower_extremities.ElementAt(a).Value)){
+                        max_y_pos = lower_extremities.ElementAt(a).Key;
+                        max_y_index = a;
+                        break;
+                    }
+                }
+            }
 		}
 
 		//check if a platform should be deactivated off the right border
 		if (max_x_pos > left_extremity_cutoff){
-			float new_pos = float.MinValue;
-			float new_y_min = float.MaxValue, newYMax = float.MinValue;
-			
-			for (int a=0; a<active_platforms.Count; a++){
-				temp_position = (active_platforms[a].localPosition.x - (active_platforms[a].localScale.x / 2));
-				if (temp_position == max_x_pos)
-					index = a;
-				else if (temp_position > new_pos)
-					new_pos = temp_position;
-					
-				temp_position = (active_platforms[a].localPosition.y + (active_platforms[a].localScale.y / 2));
-				if (temp_position > min_y_pos && temp_position < new_y_min)
-					new_y_min = temp_position;
-				temp_position -= active_platforms[a].localScale.y;
-				if (temp_position < max_y_pos && temp_position > newYMax)
-					newYMax = temp_position;
-			}
-			
-			max_x_pos = new_pos;
-			
-			if ((active_platforms[index].localPosition.y + (active_platforms[index].localScale.y / 2)) == min_y_pos)
-				min_y_pos = new_y_min;
-			if ((active_platforms[index].localPosition.y - (active_platforms[index].localScale.y / 2)) == max_y_pos)
-				max_y_pos = newYMax;
-			
-			inactive_platforms.Enqueue(active_platforms[index]);
-			active_platforms.RemoveAt(index);
+            int index = left_extremities.ElementAt(max_x_index).Value;
 
-			index = int.MaxValue;
+            inactive_platform_indices.Enqueue(all_platforms[index].get_index());
+
+            for (int a = max_x_index-1; a <= 0; --a) {
+                if (is_in_y_range(left_extremities.ElementAt(a).Value)) {
+                    max_x_pos = left_extremities.ElementAt(a).Key;
+                    max_x_index = a;
+                    break;
+                }
+            }
+
+            if (index == upper_extremities.ElementAt(min_y_index).Value) {
+                for (int a = min_y_index+1; a < TOTAL_PLATFORMS; ++a) {
+                    if (is_in_x_range(upper_extremities.ElementAt(a).Value)) {
+                        min_y_pos = upper_extremities.ElementAt(a).Key;
+                        min_y_index = a;
+                        break;
+                    }
+                }
+            }
+
+            if (index == lower_extremities.ElementAt(max_y_index).Value) {
+                for (int a = max_y_index-1; a >= 0; --a) {
+                    if (is_in_x_range(lower_extremities.ElementAt(a).Value)) {
+                        max_y_pos = lower_extremities.ElementAt(a).Key;
+                        max_y_index = a;
+                        break;
+                    }
+                }
+            }
 		}
 
 		//check if a platform should be deactivated off the bottom border
 		if (min_y_pos < upper_extremity_cutoff){
-			float new_pos = float.MaxValue;
-			float new_x_min = float.MaxValue, newXMax = float.MinValue;
-			
-			for (int a=0; a<active_platforms.Count; a++){
-				temp_position = (active_platforms[a].localPosition.y + (active_platforms[a].localScale.y / 2));
-				if (temp_position == min_y_pos)
-					index = a;
-				else if (temp_position < new_pos)
-					new_pos = temp_position;
-					
-				temp_position = (active_platforms[a].localPosition.x + (active_platforms[a].localScale.x / 2));
-				if (temp_position > min_x_pos && temp_position < new_x_min)
-					new_x_min = temp_position;
-				temp_position -= active_platforms[a].localScale.x;
-				if (temp_position < max_x_pos && temp_position > newXMax)
-					newXMax = temp_position;
-			}
-			
-			min_y_pos = new_pos;
-			
-			if ((active_platforms[index].localPosition.x + (active_platforms[index].localScale.x / 2)) == min_x_pos)
-				min_x_pos = new_x_min;
-			if ((active_platforms[index].localPosition.x - (active_platforms[index].localScale.x / 2)) == max_x_pos)
-				max_x_pos = newXMax;
-			
-			inactive_platforms.Enqueue(active_platforms[index]);
-			active_platforms.RemoveAt(index);
+            int index = upper_extremities.ElementAt(min_y_index).Value;
 
-			index = int.MaxValue;
+            inactive_platform_indices.Enqueue(all_platforms[index].get_index()); ;
+
+            for (int a = min_y_index+1; a < TOTAL_PLATFORMS; ++a){
+                if (is_in_x_range(upper_extremities.ElementAt(a).Value)){
+                    min_y_pos = upper_extremities.ElementAt(a).Key;
+                    min_y_index = a;
+                    break;
+                }
+            }
+
+            if (index == right_extremities.ElementAt(min_x_index).Value){
+                for (int a = min_x_index+1; a < TOTAL_PLATFORMS; ++a) {
+                    if (is_in_y_range(right_extremities.ElementAt(a).Value)){
+                        min_x_pos = right_extremities.ElementAt(a).Key;
+                        min_x_index = a;
+                        break;
+                    }
+                }
+            }
+
+            if (index == left_extremities.ElementAt(max_x_index).Value){
+                for (int a = max_x_index-1; a >= 0; --a){
+                    if (is_in_y_range(right_extremities.ElementAt(a).Value)){
+                        max_x_pos = left_extremities.ElementAt(a).Key;
+                        max_x_index = a;
+                        break;
+                    }
+                }
+            }
 		}
 
 		//check if a platform should be deactivated off the top border
 		if (max_y_pos > lower_extremity_cutoff){
-			float new_pos = float.MinValue;
-			float new_x_min = float.MaxValue, newXMax = float.MinValue;
-			
-			for (int a=0; a<active_platforms.Count; a++){
-				temp_position = (active_platforms[a].localPosition.y - (active_platforms[a].localScale.y / 2));
-				if (temp_position == max_y_pos)
-					index = a;
-				else if (temp_position > new_pos)
-					new_pos = temp_position;
-					
-				temp_position = (active_platforms[a].localPosition.x + (active_platforms[a].localScale.x / 2));
-				if (temp_position > min_x_pos && temp_position < new_x_min)
-					new_x_min = temp_position;
-				temp_position -= active_platforms[a].localScale.x;
-				if (temp_position < max_x_pos && temp_position > newXMax)
-					newXMax = temp_position;
-			}
-			
-			max_y_pos = new_pos;
-			
-			if ((active_platforms[index].localPosition.x + (active_platforms[index].localScale.x / 2)) == min_x_pos)
-				min_x_pos = new_x_min;
-			if ((active_platforms[index].localPosition.x - (active_platforms[index].localScale.x / 2)) == max_x_pos)
-				max_x_pos = newXMax;
-			
-			inactive_platforms.Enqueue(active_platforms[index]);
-			active_platforms.RemoveAt(index);
+            int index = lower_extremities.ElementAt(max_y_index).Value;
+
+            inactive_platform_indices.Enqueue(all_platforms[index].get_index());
+
+            for (int a = max_y_index-1; a >= 0; --a) {
+                if (is_in_x_range(lower_extremities.ElementAt(a).Value)) {
+                    max_y_pos = lower_extremities.ElementAt(a).Key;
+                    max_y_index = a;
+                    break;
+                }
+            }
+
+            if (index == right_extremities.ElementAt(min_x_index).Value) {
+                for (int a = min_x_index + 1; a < TOTAL_PLATFORMS; ++a) {
+                    if (is_in_y_range(right_extremities.ElementAt(a).Value)) {
+                        min_x_pos = right_extremities.ElementAt(a).Key;
+                        min_x_index = a;
+                        break;
+                    }
+                }
+            }
+
+            if (index == left_extremities.ElementAt(max_x_index).Value) {
+                for (int a = max_x_index - 1; a >= 0; --a) {
+                    if (is_in_y_range(right_extremities.ElementAt(a).Value)) {
+                        max_x_pos = left_extremities.ElementAt(a).Key;
+                        max_x_index = a;
+                        break;
+                    }
+                }
+            }
 		}
 		
 		

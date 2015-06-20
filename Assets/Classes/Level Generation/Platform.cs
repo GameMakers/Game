@@ -9,6 +9,7 @@ public class Platform{
 	private float right_extremity;
 	private float upper_extremity;
 	private float lower_extremity;
+    private int active_index;
 
 
 	public Platform(){}
@@ -46,6 +47,10 @@ public class Platform{
 		return lower_extremity;
 	}
 
+    public int get_index(){
+        return active_index;
+    }
+
 	public void set_position(Vector3 position){
 		this.position = position;
 	}
@@ -54,5 +59,8 @@ public class Platform{
 		this.scale = scale;
 	}
 
+    public void set_index(int index){
+        active_index = index;
+    }
 
 }

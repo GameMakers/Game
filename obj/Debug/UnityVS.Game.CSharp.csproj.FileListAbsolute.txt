@@ -15,3 +15,14 @@ C:\Users\Derek\Documents\GitHub\Game\Temp\UnityVS_bin\Debug\UnityEditor.iOS.Exte
 C:\Users\Derek\Documents\GitHub\Game\obj\Debug\UnityVS.Game.CSharp.csprojResolveAssemblyReference.cache
 C:\Users\Derek\Documents\GitHub\Game\obj\Debug\Assembly-CSharp.dll
 C:\Users\Derek\Documents\GitHub\Game\obj\Debug\Assembly-CSharp.pdb
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\Assembly-CSharp.dll
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\Assembly-CSharp.pdb
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEditor.dll
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEditor.iOS.Extensions.Xcode.dll
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.Analytics.dll
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.dll
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.Networking.dll
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.UI.dll
+D:\Program Files (x86)\Unity\Git\Game\obj\Debug\UnityVS.Game.CSharp.csprojResolveAssemblyReference.cache
+D:\Program Files (x86)\Unity\Git\Game\obj\Debug\Assembly-CSharp.dll
+D:\Program Files (x86)\Unity\Git\Game\obj\Debug\Assembly-CSharp.pdb
