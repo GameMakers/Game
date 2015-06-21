@@ -9,18 +9,14 @@ public class LevelGenerator : MonoBehaviour {
 	public Transform prefab;
 	public Vector3 start_pos;
 
-	private readonly int TOTAL_PLATFORMS = 2000;
-	private readonly int X_RECYLE_CUTOFF = 20, Y_RECYCLE_CUTOFF = 10;
-	private readonly int TOTAL_INSTANCIATED_PLATFORMS = 100;
+	private readonly int TOTAL_PLATFORMS = 3000;
+	private readonly int X_RECYLE_CUTOFF = 18, Y_RECYCLE_CUTOFF = 9;
+	private readonly int TOTAL_INSTANCIATED_PLATFORMS = 70;
 	private readonly float VERTICAL_BUFFER = 1;
 
-	//REFERENCE THE PLAYER MOVEMENT SCRIPT FOR THESE VALUES
 	//information about the player's mobility used to determine if one platform can be reached from another
-	//private readonly float playerSpeed = 10;
-	//private readonly float playerJump = 5;
-	private int platform_horizontal_gap = 40;
-	private int platform_upwards_gap = 40;
-	private int platform_downwards_gap = 70;
+    private Character_mobility character_mobility;
+    private float platform_horizontal_gap, platform_upwards_gap, platform_downwards_gap;
 	
 	
 	//stores the minimally necessary information on all platforms in the entire level
@@ -46,16 +42,20 @@ public class LevelGenerator : MonoBehaviour {
 	private List<Transform> active_platforms;
 	
 	
-	//FIX GENERATION BUGS
 	//VERIFY THAT GRAPH CAN BE REMOVED
-	
 	//ADD CODE TO MARK THE START AND END PLATFORMS
 	//IMPROVE LEVEL GENERATION RULES
 	//VERIFY CASES WHEN LIST ENDS ARE REACHED
-	//VERIFY THE CORECTNESS FOR ALL EVENTS
 	
 	
 	void Start(){
+        //set up feasible platform gaps sizes based on the player's mobility
+        character_mobility = new Character_mobility();
+        float character_speed = character_mobility.get_top_speed();
+        platform_horizontal_gap = character_speed * 6;
+        platform_upwards_gap = character_speed * 4;
+        platform_downwards_gap = character_speed * 10;
+
 		active_platforms = new List<Transform>();
 		inactive_platform_indices = new Queue<int>();
 		all_platforms = new List<Platform>();
@@ -213,7 +213,6 @@ public class LevelGenerator : MonoBehaviour {
 			if (stage == 1 && left_extremities.ElementAt(a).Key < left_extremity_cutoff){
 				stage = 2;
 				next_right_pos = prev_extremity;
-				//left_extremity_index = left_extremities.ElementAt(0).Value;
 				left_extremity_index = a;
 				next_right_pos_rep = left_extremities.ElementAt(a).Key;
 			}
@@ -238,7 +237,6 @@ public class LevelGenerator : MonoBehaviour {
 			if (stage == 1 && upper_extremities.ElementAt(a).Key > upper_extremity_cutoff){
 				stage = 2;
 				next_lower_pos = prev_extremity;
-				//upper_extremity_index = upper_extremities.ElementAt(0).Value;
 				upper_extremity_index = a;
 				next_lower_pos_rep = upper_extremities.ElementAt(a).Key;
 			}
@@ -260,12 +258,9 @@ public class LevelGenerator : MonoBehaviour {
 		prev_extremity = float.MaxValue;
 		stage = 1;
         for (int a = TOTAL_PLATFORMS - 1; a >= 0; --a){
-		//if (stage==1)
-				//print (lower_extremities.ElementAt(0).Key);
 			if (stage == 1 && lower_extremities.ElementAt(a).Key < lower_extremity_cutoff){
 				stage = 2;
 				next_upper_pos = prev_extremity;
-				//lower_extremity_index = lower_extremities.ElementAt(0).Value;
 				lower_extremity_index = a;
 				next_upper_pos_rep = lower_extremities.ElementAt(a).Key;
 			}
@@ -328,8 +323,8 @@ public class LevelGenerator : MonoBehaviour {
     }
 
     private bool is_in_x_range(int index) {
-        float temp_pos = all_platforms[index].get_position().y;
-        float temp_scale = all_platforms[index].getScale().y;
+        float temp_pos = all_platforms[index].get_position().x;
+        float temp_scale = all_platforms[index].getScale().x;
         if (((temp_pos + (temp_scale / 2)) > right_extremity_cutoff) && ((temp_pos - (temp_scale / 2)) < left_extremity_cutoff))
             return true;
 
@@ -431,7 +426,7 @@ public class LevelGenerator : MonoBehaviour {
 		if (next_right_pos_rep >= left_extremity_cutoff){
 			next_right_pos = next_right_pos_rep;
 			left_extremity_index--;
-			if (upper_extremity_index == 0)
+            if (left_extremity_index == 0)
 				next_right_pos_rep = float.MinValue;
 			else
 				next_right_pos_rep = left_extremities.ElementAt(left_extremity_index).Key;
@@ -504,7 +499,7 @@ public class LevelGenerator : MonoBehaviour {
 
             inactive_platform_indices.Enqueue(all_platforms[index].get_index());
 
-            for (int a = max_x_index-1; a <= 0; --a) {
+            for (int a = max_x_index-1; a >= 0; --a) {
                 if (is_in_y_range(left_extremities.ElementAt(a).Value)) {
                     max_x_pos = left_extremities.ElementAt(a).Key;
                     max_x_index = a;
@@ -537,10 +532,10 @@ public class LevelGenerator : MonoBehaviour {
 		if (min_y_pos < upper_extremity_cutoff){
             int index = upper_extremities.ElementAt(min_y_index).Value;
 
-            inactive_platform_indices.Enqueue(all_platforms[index].get_index()); ;
+            inactive_platform_indices.Enqueue(all_platforms[index].get_index());
 
             for (int a = min_y_index+1; a < TOTAL_PLATFORMS; ++a){
-                if (is_in_x_range(upper_extremities.ElementAt(a).Value)){
+                if (is_in_x_range(upper_extremities.ElementAt(a).Value)) {
                     min_y_pos = upper_extremities.ElementAt(a).Key;
                     min_y_index = a;
                     break;

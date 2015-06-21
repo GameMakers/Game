@@ -3,6 +3,7 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour 
 {
+    Character_mobility character_mobility;
 	bool isGrounded;
 	public bool isPunching;
 	SpriteRenderer SR;
@@ -18,7 +19,8 @@ public class PlayerController : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-        topspeed = 10;
+        character_mobility = new Character_mobility();
+        topspeed = character_mobility.get_top_speed();
         Rb2d = this.GetComponent<Rigidbody2D>();
 		SR = this.GetComponent<SpriteRenderer> ();
 		isGrounded = true;
