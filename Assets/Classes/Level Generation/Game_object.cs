@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Platform{
+public class Game_object{
 
 	private Vector3 position;
 	private Vector3 scale;
@@ -12,9 +12,9 @@ public class Platform{
     private int active_index;
 
 
-	public Platform(){}
+	public Game_object(){}
 
-	public Platform(Vector3 position, Vector3 scale){
+    public Game_object(Vector3 position, Vector3 scale) {
 		this.position = position;
 		this.scale = scale;
 		left_extremity = position.x - (scale.x / 2);

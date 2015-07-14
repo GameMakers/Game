@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Character_mobility : MonoBehaviour {
+public class Character_mobility {
 
     private float top_speed = 10;
 

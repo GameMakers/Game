@@ -10,8 +10,8 @@ public class LevelGenerator : MonoBehaviour {
 	public Vector3 start_pos;
 
 	private readonly int TOTAL_PLATFORMS = 3000;
-	private readonly int X_RECYLE_CUTOFF = 18, Y_RECYCLE_CUTOFF = 9;
-	private readonly int TOTAL_INSTANCIATED_PLATFORMS = 70;
+	/*private readonly int X_RECYLE_CUTOFF = 18, Y_RECYCLE_CUTOFF = 9;
+	private readonly int TOTAL_INSTANCIATED_PLATFORMS = 70;*/
 	private readonly float VERTICAL_BUFFER = 1;
 
 	//information about the player's mobility used to determine if one platform can be reached from another
@@ -20,11 +20,11 @@ public class LevelGenerator : MonoBehaviour {
 	
 	
 	//stores the minimally necessary information on all platforms in the entire level
-	private List<Platform> all_platforms;
+    private List<Game_object> all_platforms;
 	//each list stores the farthest point of all platforms for a particular extremity in sorted order - this is used to identify when they should become active
 	private SortedList<float,int> right_extremities, left_extremities, upper_extremities, lower_extremities;
 	//used to keep track of index locations in the extremity lists
-	private int right_extremity_index, left_extremity_index, upper_extremity_index, lower_extremity_index;
+	/*private int right_extremity_index, left_extremity_index, upper_extremity_index, lower_extremity_index;
 	//used to keep track of the farthest active platform with respect to each border
 	private float min_x_pos, max_x_pos, min_y_pos, max_y_pos;
 	private int min_x_index, max_x_index, min_y_index, max_y_index;
@@ -34,12 +34,9 @@ public class LevelGenerator : MonoBehaviour {
 	private float next_left_pos_rep, next_right_pos_rep, next_upper_pos_rep, next_lower_pos_rep;
 	//used to keep track of the cutoffs for the player's current position
 	float right_extremity_cutoff, left_extremity_cutoff, upper_extremity_cutoff, lower_extremity_cutoff;
-	
-	//a directed graph with platforms as nodes and edges to represent reachable platforms
-	private Graph platform_graph;
-	
+		
 	private Queue<int> inactive_platform_indices;
-	private List<Transform> active_platforms;
+	private List<Transform> active_platforms;*/
 	
 	
 	//VERIFY THAT GRAPH CAN BE REMOVED
@@ -56,31 +53,30 @@ public class LevelGenerator : MonoBehaviour {
         platform_upwards_gap = character_speed * 4;
         platform_downwards_gap = character_speed * 10;
 
-		active_platforms = new List<Transform>();
-		inactive_platform_indices = new Queue<int>();
-		all_platforms = new List<Platform>();
+		/*active_platforms = new List<Transform>();
+		inactive_platform_indices = new Queue<int>();*/
+        all_platforms = new List<Game_object>();
 		//TEST THE COMPARATOR
 		right_extremities = new SortedList<float,int>(new Duplicate_key_comparer<float>());
 		left_extremities = new SortedList<float,int>(new Duplicate_key_comparer<float>());
 		upper_extremities = new SortedList<float,int>(new Duplicate_key_comparer<float>());
 		lower_extremities = new SortedList<float,int>(new Duplicate_key_comparer<float>());
-		platform_graph = new Graph();
 
 		//instantiate up to the number of allowed platforms
-		for (int a = 0; a < TOTAL_INSTANCIATED_PLATFORMS; ++a) {
+		/*for (int a = 0; a < TOTAL_INSTANCIATED_PLATFORMS; ++a) {
 			Transform platform = (Transform)Instantiate(prefab);
             active_platforms.Add(platform);
             inactive_platform_indices.Enqueue(a);
-		}
+		}*/
 
 		//place the start platform
 		Vector3 start_scale = new Vector3(4, 0.36f, 1);
-		Platform start_platform = new Platform(start_pos, start_scale);
+        Game_object start_platform = new Game_object(start_pos, start_scale);
 		all_platforms.Add(start_platform);
-		right_extremities.Add(start_platform.get_right_extremity(), 0);
+		/*right_extremities.Add(start_platform.get_right_extremity(), 0);
 		left_extremities.Add(start_platform.get_left_extremity(), 0);
 		upper_extremities.Add(start_platform.get_upper_extremity(), 0);
-		lower_extremities.Add(start_platform.get_lower_extremity(), 0);
+		lower_extremities.Add(start_platform.get_lower_extremity(), 0);*/
 
 		System.Random rnd = new System.Random();
 		//for each remaining platform to be created
@@ -92,7 +88,7 @@ public class LevelGenerator : MonoBehaviour {
 			int placement_attempts = 0;
 			
 			//try up to 3 times to create and place the new platform
-			Platform platform = new Platform();
+            Game_object platform = new Game_object();
 			while (is_overlapping && placement_attempts < 3){
 				++placement_attempts;
 			
@@ -104,8 +100,8 @@ public class LevelGenerator : MonoBehaviour {
 				int platform_x = rnd.Next((int)(all_platforms[index].get_left_extremity() - platform_horizontal_gap), (int)(all_platforms[index].get_right_extremity() + platform_horizontal_gap));
 				int platform_y = rnd.Next((int)(all_platforms[index].get_lower_extremity() - platform_downwards_gap), (int)(all_platforms[index].get_upper_extremity() + platform_upwards_gap));
 				Vector3 platform_pos = new Vector3(platform_x, platform_y, 1);
-				
-				platform = new Platform(platform_pos, platform_scale);
+
+                platform = new Game_object(platform_pos, platform_scale);
 				float left_extremity = platform.get_left_extremity();
 				float right_extremity = platform.get_right_extremity();
 				float upper_buffer = platform.get_upper_extremity() + VERTICAL_BUFFER;
@@ -157,17 +153,9 @@ public class LevelGenerator : MonoBehaviour {
 				lower_extremities.Add(platform.get_lower_extremity(), a);
 			}
 		}
-
-		//construct a directed graph with edges between plaforms that are sufficiently reachable from each other
-		//build_graph_edges();
-		
-		//check if the graph represents a level which can be traversed based on the mobility of the player
-		//UPDATE THIS TO CORRECT THE GRAPH WHEN IT IS NOT VALID
-		//ADD THE CORRECT INDICATION OF THE START AND END NODES
-		//if (!platform_graph.isValid(0, 1))
-			//print ("LEVEL CANNOT BE COMPLETED BY CURRENT PLAYER");
 				
-		right_extremity_cutoff = player.localPosition.x - X_RECYLE_CUTOFF;
+        //compute the current extremity cutoffs
+		/*right_extremity_cutoff = player.localPosition.x - X_RECYLE_CUTOFF;
 		left_extremity_cutoff = player.localPosition.x + X_RECYLE_CUTOFF;
 		upper_extremity_cutoff = player.localPosition.y - Y_RECYCLE_CUTOFF;
 		lower_extremity_cutoff = player.localPosition.y + Y_RECYCLE_CUTOFF;
@@ -286,10 +274,13 @@ public class LevelGenerator : MonoBehaviour {
 		}
 		
 		//check the platform with the farthest allowable left extremity for activation
-		activate_if_in_y_range(left_extremities.ElementAt(left_extremity_index).Value);
+		activate_if_in_y_range(left_extremities.ElementAt(left_extremity_index).Value);*/
+
+        GameObject game_object_manager = GameObject.Find("Game Object Manager");
+        Object_manager platform_manager = Object_manager.create_component(game_object_manager, all_platforms, player, prefab, TOTAL_PLATFORMS, 30);
 	}
 	
-	private bool activate_if_in_y_range(int index){
+	/*private bool activate_if_in_y_range(int index){
 		float temp_pos = all_platforms[index].get_position().y;
 		float temp_scale = all_platforms[index].getScale().y;
 		//if the platform is within the allowable y range then activate it
@@ -299,9 +290,9 @@ public class LevelGenerator : MonoBehaviour {
 		}
 		
 		return false;
-	}
+	}*/
 	
-	private bool activate_if_in_x_range(int index){
+	/*private bool activate_if_in_x_range(int index){
 		float temp_pos = all_platforms[index].get_position().x;
 		float temp_scale = all_platforms[index].getScale().x;
 		//if the platform is within the allowable x range then activate it
@@ -311,36 +302,36 @@ public class LevelGenerator : MonoBehaviour {
 		}
 		
 		return false;
-	}
+	}*/
 
-    private bool is_in_y_range(int index) {
+    /*private bool is_in_y_range(int index) {
         float temp_pos = all_platforms[index].get_position().y;
         float temp_scale = all_platforms[index].getScale().y;
         if (((temp_pos + (temp_scale / 2)) > upper_extremity_cutoff) && ((temp_pos - (temp_scale / 2)) < lower_extremity_cutoff))
             return true;
 
         return false;
-    }
+    }*/
 
-    private bool is_in_x_range(int index) {
+    /*private bool is_in_x_range(int index) {
         float temp_pos = all_platforms[index].get_position().x;
         float temp_scale = all_platforms[index].getScale().x;
         if (((temp_pos + (temp_scale / 2)) > right_extremity_cutoff) && ((temp_pos - (temp_scale / 2)) < left_extremity_cutoff))
             return true;
 
         return false;
-    }
+    }*/
 	
 	//take an inactive platform and give it the characteristics of the platform at the specified index
-	private void activate(int index){
+	/*private void activate(int index){
         int active_index = inactive_platform_indices.Dequeue();
         all_platforms[index].set_index(active_index);
 		active_platforms[active_index].localPosition = all_platforms[index].get_position();
         active_platforms[active_index].localScale = all_platforms[index].getScale();
-	}
+	}*/
 
 
-	void Update(){
+	/*void Update(){
 		right_extremity_cutoff = player.localPosition.x - X_RECYLE_CUTOFF;
 		left_extremity_cutoff = player.localPosition.x + X_RECYLE_CUTOFF;
 		upper_extremity_cutoff = player.localPosition.y - Y_RECYCLE_CUTOFF;
@@ -609,70 +600,6 @@ public class LevelGenerator : MonoBehaviour {
 		if (lower_extremity_index == all_platforms.Count-1)
 			next_upper_pos = float.MaxValue;
 
-	}
-	
-	
-	/*private void build_graph_edges(){
-		float right_extremity_pos, left_extremity_pos, upper_extremity_pos, other_upper_extremity_pos;
-		int index, other_index = 0, other_index_walk, left_extremity_index_lookup;
-		float x_gap, y_gap;
-		
-		//walk through platforms in order of their right extremities
-		for (int a=0; a<all_platforms.Count; a++){
-			//get the right extremity platform info
-			index = right_extremities[a].Value;
-			right_extremity_pos = all_platforms[index].get_position().x + (all_platforms[index].getScale().x / 2);
-			upper_extremity_pos = all_platforms[index].get_position().y + (all_platforms[index].getScale().y / 2);
-			
-			//walk through platforms in order of their left extremities starting from the last platform selected in this way
-			//walk until the left extremity is to the right of the chosen right extremity
-			left_extremity_index_lookup = left_extremities[other_index].Value;
-			left_extremity_pos = all_platforms[left_extremity_index_lookup].get_position().x - (all_platforms[left_extremity_index_lookup].getScale().x / 2);
-			while ((left_extremity_pos < right_extremity_pos) && other_index < (all_platforms.Count-1)){
-				//get the left extremity platform info
-				other_index++;
-				left_extremity_index_lookup = left_extremities[other_index].Value;
-				left_extremity_pos = all_platforms[left_extremity_index_lookup].get_position().x - (all_platforms[left_extremity_index_lookup].getScale().x / 2);
-			}
-			
-			//walk forward from the chosen left extremity until the gap on the x axe between the current left extremity platorm and the right extremity platform becomes too great
-			other_index_walk = other_index;
-			do{
-				//get the left extremity platform info
-				left_extremity_index_lookup = left_extremities[other_index_walk].Value;
-				left_extremity_pos = all_platforms[other_index_walk].get_position().x - (all_platforms[other_index_walk].getScale().x / 2);
-				other_upper_extremity_pos = all_platforms[other_index_walk].get_position().y + (all_platforms[other_index_walk].getScale().y / 2);
-				x_gap = left_extremity_pos - right_extremity_pos;
-				
-				//if the left extremity platform is above the right extremity platform
-				if (other_upper_extremity_pos > upper_extremity_pos){
-					y_gap = other_upper_extremity_pos - upper_extremity_pos;
-					//check if the left extremity platform can be reached from the right extremity platform
-					if (y_gap < platform_upwards_gap)
-						//add an edge to the graph to indicate that the platform can be reached
-						platform_graph.addEdge(index, new Edge(x_gap, y_gap, left_extremity_index_lookup));
-					//check if the right extremity platform can be reached from the left extremity platform
-					if (y_gap < platform_downwards_gap)
-						//add an edge to the graph to indicate that the platform can be reached
-						platform_graph.addEdge(left_extremity_index_lookup, new Edge(x_gap, y_gap, index));
-				}
-				//if the left extremity platform is below the right extremity platform
-				else{
-					y_gap = upper_extremity_pos - other_upper_extremity_pos;
-					//check if the left extremity platform can be reached from the right extremity platform
-					if (y_gap < platform_downwards_gap)
-						//add an edge to the graph to indicate that the platform can be reached
-						platform_graph.addEdge(index, new Edge(x_gap, y_gap, left_extremity_index_lookup));
-					//check if the right extremity platform can be reached from the left extremity platform
-					if (y_gap < platform_upwards_gap)
-						//add an edge to the graph to indicate that the platform can be reached
-						platform_graph.addEdge(left_extremity_index_lookup, new Edge(x_gap, y_gap, index));
-				}
-				
-				other_index_walk++;
-			} while (((left_extremity_pos - right_extremity_pos) < platform_horizontal_gap) && other_index_walk < all_platforms.Count);
-		}
-	}*/
-	
+	}*/	
 
 }

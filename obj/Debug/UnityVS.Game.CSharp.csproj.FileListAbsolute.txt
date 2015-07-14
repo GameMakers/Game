@@ -26,3 +26,9 @@ D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.UI.dll
 D:\Program Files (x86)\Unity\Git\Game\obj\Debug\UnityVS.Game.CSharp.csprojResolveAssemblyReference.cache
 D:\Program Files (x86)\Unity\Git\Game\obj\Debug\Assembly-CSharp.dll
 D:\Program Files (x86)\Unity\Git\Game\obj\Debug\Assembly-CSharp.pdb
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.xml
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEditor.xml
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.UI.xml
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.Networking.xml
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEngine.Analytics.xml
+D:\Program Files (x86)\Unity\Git\Game\Temp\UnityVS_bin\Debug\UnityEditor.iOS.Extensions.Xcode.xml
