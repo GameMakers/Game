@@ -10,6 +10,7 @@ public class Game_object{
 	private float upper_extremity;
 	private float lower_extremity;
     private int active_index;
+    private bool is_object_active;
 
 
 	public Game_object(){}
@@ -21,6 +22,7 @@ public class Game_object{
 		right_extremity = position.x + (scale.x / 2);
 		upper_extremity = position.y + (scale.y / 2);
 		lower_extremity = position.y - (scale.y / 2);
+        is_object_active = false;
 	}
 
 	public Vector3 get_position(){
@@ -51,6 +53,10 @@ public class Game_object{
         return active_index;
     }
 
+    public bool is_active() {
+        return is_object_active;
+    }
+
 	public void set_position(Vector3 position){
 		this.position = position;
 	}
@@ -61,6 +67,10 @@ public class Game_object{
 
     public void set_index(int index){
         active_index = index;
+    }
+
+    public void toggle_active() {
+        is_object_active = !is_object_active;
     }
 
 }
